@@ -1,0 +1,767 @@
+create database if not exists Sales;
+create schema if not exists Sales;
+use sales;
+
+/* CREATING TABLES USING PRIMARY KEY*/
+
+create table sales(
+Purchase_number int NOT NULL auto_increment,
+date_of_purchase date not null,
+customer_id int,
+item_code varchar(10),
+primary key(purchase_number)
+
+
+create table customers (
+customer_id int not null auto_increment,
+first_name varchar(255) not null,
+last_name varchar(255),
+email_address varchar(255),
+number_of_complaints int,
+primary key(customer_id)
+);
+
+/*  USING FOREIGN KEY*/
+
+ALTER table sales
+add foreign key (customer_id) references customers (customer_id) on delete cascade;
+
+alter table sales
+drop foreign key sales_ibfk_1;
+
+ALTER TABLE CUSTOMERS
+ADD COLUMN gender ENUM('M', 'F') AFTER last_name;
+INSERT INTO customers (first_name, last_name, gender, email_address, number_of_complaints)
+
+VALUES ('John', 'Mackinley', 'M', 'john.mckinley@365careers.com', 0);
+
+
+/*  USING DEFAULT KEY*/
+
+ALTER table customers
+change column number_of_complaints number_of_complaints int DEFAULT 0;
+
+ALTER TABLE CUSTOMERS
+ALTER COLUMN number_of_complaints drop default;
+
+
+/* ADDING UNIQUE KEY*/
+
+create table companies(
+company_id  VARCHAR (255),  
+
+company_name VARCHAR (255) DEFAULT 'X',
+
+headquarters_phone_number VARCHAR (255) ,
+PRIMARY KEY (company_id),
+unique KEY (headquarters_phone_number)
+);
+
+
+/* IN- NOT IN*/
+
+select * from employees where first_name IN ('Denis','Elvis');
+
+ select * from employees where first_name NOT IN ('John',' Mark', 'Jacob');
+ 
+ /* LIKE- NOT LIKE*/
+
+select * from employees where first_name like ('Mark%');
+   
+select * from employees where hire_date like ('2000%');
+
+select * from employees where emp_no like  ('1000_');
+
+/* BETWEEN - NOT BETWEEN*/
+
+select * from salaries  where salary between '66000' and '70000';
+     
+select * from salaries  where emp_no  not between '10004' and '10012';
+
+select * from departments where dept_no between 'd003' and 'd006';
+     
+	 
+/* NULL - NOT NULL */
+
+SELECT
+
+    dept_name
+
+FROM
+
+    departments
+
+WHERE
+
+    dept_no IS NOT NULL;
+	
+/* Aggregate functions */
+
+select  count(emp_no) from employees;
+     
+select count(*) from salaries where salary >= '100000';
+
+Select  count(distinct dept_no) from dept_emp;
+
+select sum(salary) from salaries where from_date > '1997-01-01';
+
+ select min(emp_no),max(emp_no) from dept_emp;
+
+ select avg(salary) from salaries where from_date > '1997-01-01';
+
+  select round(avg(salary)) from salaries where from_date > '1997-01-01';
+
+
+/* create dup tables and insert values from the original table) */
+
+1.
+
+create table departments_dup
+(
+dept_no char(4) not null,
+dept_name varchar(40) not null
+);
+
+insert into departments_dup
+(
+dept_no,
+dept_name
+)
+select * from departments;
+
+select * from departments_dup;
+
+2.
+
+ CREATE TABLE dept_manager_dup (
+
+  emp_no int(11) NOT NULL,
+
+  dept_no char(4) NULL,
+
+  from_date date NOT NULL,
+
+  to_date date NULL
+
+  );
+INSERT INTO dept_manager_dup
+
+select * from dept_manager;
+
+INSERT INTO dept_manager_dup (emp_no, from_date)
+
+VALUES                (999904, '2017-01-01'),
+
+                                (999905, '2017-01-01'),
+
+                               (999906, '2017-01-01'),
+
+                               (999907, '2017-01-01');
+                               
+INSERT INTO dept_manager_dup (emp_no, from_date)
+
+VALUES                (999904, '2017-01-01'),
+
+                                (999905, '2017-01-01'),
+
+                               (999906, '2017-01-01'),
+
+                               (999907, '2017-01-01');
+
+ DELETE FROM dept_manager_dup
+
+WHERE
+
+    dept_no = 'd001';
+
+INSERT INTO dept_manager_dup
+
+select * from dept_manager;
+
+INSERT INTO dept_manager_dup (emp_no, from_date)
+
+VALUES                (999904, '2017-01-01'),
+
+                                (999905, '2017-01-01'),
+
+                               (999906, '2017-01-01'),
+
+                               (999907, '2017-01-01');
+                               
+INSERT INTO dept_manager_dup (emp_no, from_date)
+
+VALUES                (999904, '2017-01-01'),
+
+                                (999905, '2017-01-01'),
+
+                               (999906, '2017-01-01'),
+
+                               (999907, '2017-01-01');
+
+ DELETE FROM dept_manager_dup
+
+WHERE
+
+    dept_no = 'd001';
+
+
+/* INNER JOIN*/
+
+SELECT
+
+    e.emp_no,
+
+    e.first_name,
+
+    e.last_name,
+
+    dm.dept_no,
+
+    e.hire_date
+
+FROM
+
+    employees e
+
+        JOIN
+
+    dept_manager dm ON e.emp_no = dm.emp_no;
+
+
+/*LEFT JOIN*/
+
+
+SELECT
+
+    e.emp_no,  
+
+    e.first_name,  
+
+    e.last_name,  
+
+    dm.dept_no,  
+
+    dm.from_date  
+
+FROM  
+
+    employees e  
+
+LEFT JOIN   
+
+dept_manager dm ON e.emp_no = dm.emp_no  
+
+WHERE  
+
+    e.last_name = 'Markovitch'  
+
+ORDER BY dm.dept_no DESC, e.emp_no;
+
+
+/* JOIN AND WHERE TOGETHER*/
+
+select 
+t1.emp_no,
+t1.first_name,
+t1.last_name,
+t1.hire_date,
+t2.title
+from
+employees t1
+join
+titles t2 on t1.emp_no=t2.emp_no
+where
+first_name='Margareta' and last_name='Markovitch'
+order by t1.emp_no;
+
+/* cross join*/
+
+select
+t1.*,
+t2.*
+from 
+departments t1
+cross join
+employees t2
+where
+emp_no<=10010
+ORDER BY t2.emp_no, t1.dept_name;
+
+
+/* JOINING MORE THAN 2 TABLES*/
+
+SELECT
+
+    e.first_name,
+
+    e.last_name,
+
+    e.hire_date,
+
+    t.title,
+
+    m.from_date,
+
+    d.dept_name
+
+FROM
+
+    employees e
+
+        JOIN
+
+    dept_manager m ON e.emp_no = m.emp_no
+
+        JOIN
+
+    departments d ON m.dept_no = d.dept_no
+
+        JOIN
+
+    titles t ON e.emp_no = t.emp_no
+
+WHERE t.title = 'Manager'
+
+ORDER BY e.emp_no;
+
+/* NESTED QUERY IN WHERE */
+
+SELECT
+
+    *
+
+FROM
+
+    dept_manager
+
+WHERE
+
+    emp_no IN (SELECT
+
+            emp_no
+
+        FROM
+
+            employees
+
+        WHERE
+
+            hire_date BETWEEN '1990-01-01' AND '1995-01-01');
+
+/*exits-not exists*/
+
+
+select e.*
+from employees e
+where  exists ( select t.title from titles t where 
+e.emp_no = t.emp_no and title='Assistant Engineer');
+
+/* subquery within select and from*/
+
+
+select A.*
+             from (
+             select 
+              e.emp_no as emp_ID,
+             min(dm.dept_no) as dep_code,
+              (select emp_no 
+              from 
+              dept_manager
+              where emp_no= '110022')as Manager_id
+              from
+              employees e
+              join
+              dept_emp dm on e.emp_no=dm.emp_no
+              where e.emp_no <= 10020
+              group by e.emp_no
+              order by e.emp_no ) as A
+              UNION
+    select B.*
+             from (
+             select 
+              e.emp_no as emp_ID,
+             min(dm.dept_no) as dep_code,
+              (select emp_no 
+              from 
+              dept_manager
+              where emp_no= '110039')as Manager_id
+              from
+              employees e
+              join
+              dept_emp dm on e.emp_no=dm.emp_no
+              where e.emp_no > 10020			
+              group by e.emp_no
+              order by e.emp_no
+              limit 20) as B;
+              
+
+/* Create table and insert values using subqueries*/
+
+
+
+ create table emp_manager
+              (
+              emp_no int (11) not null,
+              dept_no char(4) null,
+              manager_no int(11) not null
+              );
+              
+              
+              insert into emp_manager 
+              Select U.*
+              from 
+              (
+              select A.*
+             from (
+             select 
+              e.emp_no as emp_ID,
+             min(dm.dept_no) as dep_code,
+              (select emp_no 
+              from 
+              dept_manager
+              where emp_no= '110022')as Manager_id
+              from
+              employees e
+              join
+              dept_emp dm on e.emp_no=dm.emp_no
+              where e.emp_no <= 10020
+              group by e.emp_no
+              order by e.emp_no ) as A
+              UNION
+              select B.*
+             from (
+             select 
+              e.emp_no as emp_ID,
+             min(dm.dept_no) as dep_code,
+              (select emp_no 
+              from 
+              dept_manager
+              where emp_no= '110039')as Manager_id
+              from
+              employees e
+              join
+              dept_emp dm on e.emp_no=dm.emp_no
+              where e.emp_no > 10020			
+              group by e.emp_no
+              order by e.emp_no
+              limit 20) as B
+              Union
+              select C.*
+              from (
+              select 
+              e.emp_no as emp_ID,
+             min(dm.dept_no) as dep_code,
+              (select emp_no 
+              from 
+              dept_manager
+              where emp_no= '110039')as Manager_id
+              from
+              employees e
+              join
+              dept_emp dm on e.emp_no=dm.emp_no
+              where e.emp_no = 110022			
+              group by e.emp_no
+                ) as C
+              UNION
+               select D.*
+              from (
+              select 
+              e.emp_no as emp_ID,
+             min(dm.dept_no) as dep_code,
+              (select emp_no 
+              from 
+              dept_manager
+              where emp_no= '110022')as Manager_id
+              from
+              employees e
+              join
+              dept_emp dm on e.emp_no=dm.emp_no
+              where e.emp_no = 110039			
+              group by e.emp_no
+              ) as D
+              ) as U;
+              
+              Select * from emp_manager;
+              
+              
+              select * from emp_manager;
+              
+              drop table emp_manager;
+              
+               create table emp_manager
+              (
+              emp_no int (11) not null,
+              dept_no char(4) null,
+              manager_no int(11) not null
+              );
+               
+               
+               insert into emp_manager 
+              Select U.*
+              from 
+              (
+              select A.*
+             from (
+             select 
+              e.emp_no as emp_ID,
+             min(dm.dept_no) as dep_code,
+              (select emp_no 
+              from 
+              dept_manager
+              where emp_no= '110022')as Manager_id
+              from
+              employees e
+              join
+              dept_emp dm on e.emp_no=dm.emp_no
+              where e.emp_no <= 10020
+              group by e.emp_no
+              order by e.emp_no ) as A
+              UNION
+              select B.*
+             from (
+             select 
+              e.emp_no as emp_ID,
+             min(dm.dept_no) as dep_code,
+              (select emp_no 
+              from 
+              dept_manager
+              where emp_no= '110039')as Manager_id
+              from
+              employees e
+              join
+              dept_emp dm on e.emp_no=dm.emp_no
+              where e.emp_no > 10020			
+              group by e.emp_no
+              order by e.emp_no
+              limit 20) as B
+              Union
+              select C.*
+              from (
+              select 
+              e.emp_no as emp_ID,
+             min(dm.dept_no) as dep_code,
+              (select emp_no 
+              from 
+              dept_manager
+              where emp_no= '110039')as Manager_id
+              from
+              employees e
+              join
+              dept_emp dm on e.emp_no=dm.emp_no
+              where e.emp_no = 110022			
+              group by e.emp_no
+                ) as C
+              UNION
+               select D.*
+              from (
+              select 
+              e.emp_no as emp_ID,
+             min(dm.dept_no) as dep_code,
+              (select emp_no 
+              from 
+              dept_manager
+              where emp_no= '110022')as Manager_id
+              from
+              employees e
+              join
+              dept_emp dm on e.emp_no=dm.emp_no
+              where e.emp_no = 110039			
+              group by e.emp_no
+              ) as D
+              ) as U;
+              
+select * from  emp_manager              
+		
+           
+/* CREATE VIEW */
+
+Create View View_dept_emp as
+select 
+emp_no, dept_no, max(from_date) as from_date,max(to_date) as to_date
+ from 
+ dept_emp
+group by emp_no;
+              
+
+/* STORED ROUTINE*/
+
+
+
+DELIMITER $$
+create procedure Avg_salary()
+begin
+select 
+avg(salary)
+from 
+salaries;
+end$$
+DELIMITER;
+
+CALL employees.Avg_salary();
+
+
+/*stored routine using input Parameter*/
+
+
+
+delimiter $$
+create procedure emp_salary(in p_emp_no int)
+begin
+select
+e.emp_no,e.first_name,e.last_name,s.salary
+from 
+employees e
+join 
+salaries s on e.emp_no=s.emp_no
+where
+s.emp_no=p_emp_no;
+end$$
+delimiter ;
+
+
+
+/* Stored Procedure using output parameter*/
+
+
+
+delimiter $$
+create procedure emp_avg_salary_out(in p_emp_no int,out p_avg_sal decimal(10,2))
+begin
+select
+avg(s.salary)
+into p_avg_sal
+from 
+employees e
+join 
+salaries s on e.emp_no=s.emp_no
+where
+s.emp_no=p_emp_no;
+end$$
+delimiter ;
+
+
+
+Delimiter $$
+create procedure emp_info(in p_first_name varchar(255),p_last_name varchar(255) ,out p_emp_no int)
+begin
+select
+emp_no
+into 
+p_emp_no
+from employees e
+where e.emp_no-p_emp_no;
+end$$
+delimiter ;
+
+
+/*switch statement*/
+
+
+select e.emp_no, e.first_name,e.last_name ,
+case
+when dm.emp_no is not null then 'manager'
+else'regular employee'
+end as is_manager
+from employees e
+join
+dept_manager as dm on e.emp_no=dm.emp_no
+where e.emp_no > 109990;
+
+
+
+select e.emp_no,e.first_name,e.last_name,max(s.salary)-min(s.salary) as sal_difference,
+case
+when max(s.salary)-min(s.salary)>30000 then 'salary hike is higher than 30000'
+when max(s.salary)-min(s.salary)>20000<30000 then'salary hike is between 20k and 30k'
+else'less than 20000'
+end as hike_range
+from 
+employees e
+join
+dept_manager dm on e.emp_no=dm.emp_no
+join
+salaries s on dm.emp_no=s.emp_no
+group by e.emp_no;
+
+
+/* ROW_NUM FUNC*/
+
+SELECT
+
+emp_no,
+
+first_name,
+
+last_name,
+
+ROW_NUMBER() OVER (PARTITION BY first_name ORDER BY last_name) AS row_num
+
+FROM
+
+employees;
+
+
+
+select dm.emp_no,s.salary,
+row_number() over() as  rw_number_1,
+row_number() over(partition by salary order by salary desc) as rw_number_2
+from dept_manager dm
+join
+salaries s on dm.emp_no=s.emp_no
+order by rw_number_1,salary asc
+
+
+
+/* RANK FUNC */
+
+
+select emp_no,salary,
+rank() over (partition by emp_no order by salary desc) as rank_num
+from salaries 
+where emp_no =10560;
+
+
+
+select e.emp_no,s.salary, (year(s.from_date)-year(e.hire_date)) as no_years,
+rank() over(partition by emp_no order by salary desc) as rnk_num
+from salaries s
+join
+employees e on e.emp_no=s.emp_no
+where e.emp_no between 10500 and 10600;
+
+
+
+
+/* LAG AND LEAD FUNC*/
+
+
+select 
+emp_NO,
+salary,
+lag(salary) over w as previous_salary,
+lead(salary) over w as next_salary,
+salary-lag(salary) over w as diff_sal_pre_sal,
+lead(salary) over w - salary as diff_sal_nxt_sal
+from salaries
+where salary >80000 and emp_no between 10500 and 10600
+window w as(order by salary) ;
+
+
+
+select 
+emp_no,
+salary,
+lag(salary) over w as previous_salary,
+lag(salary,2)over w as previous_preeceding_sal,
+lead(salary) over w as next_sal,
+lead(salary,2)over w as next_preeceeding_sal
+from salaries
+window w as (order by salary)
+limit 10;
+
+
+
+
+
+
+    
